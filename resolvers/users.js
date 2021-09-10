@@ -1,9 +1,10 @@
-const User = require("../models/User");
 const { UserInputError } = require("apollo-server");
 const bcryptjs = require("bcryptjs");
 const jsonwebtoken = require("jsonwebtoken");
 
+const User = require("../models/User");
 const validateRegistration = require("../utils/validators");
+
 const saltRounds = 10;
 const SECRET_KEY = process.env.SECRET_KEY;
 

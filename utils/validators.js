@@ -15,7 +15,7 @@ const validateRegistration = (username, email, password, confirmPassword) => {
   if (password.trim() === "") {
     errors.password = "Password must not be empty";
   } else if (password !== confirmPassword) {
-    errors.confirmPassword("Passwords mismatch");
+    errors.confirmPassword = "Passwords mismatch"
   }
 
   return {
