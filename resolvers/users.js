@@ -3,10 +3,22 @@ const bcryptjs = require("bcryptjs");
 const jsonwebtoken = require("jsonwebtoken");
 
 const User = require("../models/User");
-const validateRegistration = require("../utils/validators");
+const { validateRegistration, validateLogin } = require("../utils/validators");
 
 const saltRounds = 10;
 const SECRET_KEY = process.env.SECRET_KEY;
+
+const tokenizer = (user) => {
+  return jsonwebtoken.sign(
+    {
+      id: user.id,
+      username: user.username,
+      email: user.email,
+    },
+    SECRET_KEY,
+    { expiresIn: "1h" }
+  );
+};
 
 module.exports = {
   Mutation: {
@@ -41,18 +53,41 @@ module.exports = {
 
       const result = await newUser.save();
 
-      const token = jsonwebtoken.sign(
-        {
-          id: result.id,
-          username: result.username,
-          email: result.email,
-        },
-        SECRET_KEY,
-        { expiresIn: "1h" }
-      );
+      const token = tokenizer(user);
       return {
         ...result._doc,
         id: result._id,
+        token,
+      };
+    },
+  },
+};
+
+module.exports = {
+  Mutation: {
+    async login(parent, { loginInfo: { username, password } }) {
+      const { errors, valid } = validateLogin(username, password);
+
+      if (!valid) {
+        throw new UserInputError("Errors", {errors});
+      }
+
+      const user = await User.findOne({ username });
+      if (!user) {
+        errors.general = "User not found";
+        throw new UserInputError("User not found", { errors });
+      }
+      const match = await bcryptjs.compare(password, user.password);
+      if (!match) {
+        errors.password = "Password is not correct";
+        throw new UserInputError("Password incorrect", { errors });
+      }
+
+      const token = tokenizer(user);
+
+      return {
+        ...user._doc,
+        id: user._id,
         token,
       };
     },
