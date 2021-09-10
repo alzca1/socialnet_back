@@ -15,7 +15,7 @@ const validateRegistration = (username, email, password, confirmPassword) => {
   if (password.trim() === "") {
     errors.password = "Password must not be empty";
   } else if (password !== confirmPassword) {
-    errors.confirmPassword = "Passwords mismatch"
+    errors.confirmPassword = "Passwords mismatch";
   }
 
   return {
@@ -24,4 +24,20 @@ const validateRegistration = (username, email, password, confirmPassword) => {
   };
 };
 
-module.exports = validateRegistration;
+const validateLogin = (username, password) => {
+  const errors = {};
+
+  if (username.trim() === "") {
+    errors.username = "Username must not be empty";
+  }
+
+  if (password.trim() === "") {
+    errors.password = "Password must not be empty";
+  }
+  return {
+    errors,
+    valid: Object.keys(errors).length < 1,
+  };
+}; 
+
+module.exports = { validateRegistration, validateLogin };
