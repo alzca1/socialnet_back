@@ -7,13 +7,16 @@ const resolvers = require("./resolvers/index");
 const localDatabaseURI = "mongodb://localhost/social";
 //let externalDatabaseURI;
 
-const server = new ApolloServer({ typeDefs, resolvers });
+const server = new ApolloServer({
+  typeDefs,
+  resolvers,
+  context: (req) => req,
+});
 
 mongoose
   .connect(localDatabaseURI)
   .then((res) => {
     server.listen({ port: 4000 });
-    
   })
   .then((res) => console.log("server listening"))
   .catch((err) => console.log("there was an error connecting to the db", err));

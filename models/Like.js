@@ -3,10 +3,7 @@ const { Schema, model } = mongoose;
 
 const likeSchema = new Schema(
   {
-    user: {
-      required: true,
-      type: Schema.Types.ObjectId,
-    },
+    username: String
   },
   {
     timestamps: true,
