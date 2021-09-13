@@ -22,9 +22,35 @@ const tokenizer = (user) => {
 
 module.exports = {
   Mutation: {
+    async login(parent, { loginInfo: { username, password } }) {
+      const { errors, valid } = validateLogin(username, password);
+
+      if (!valid) {
+        throw new UserInputError("Errors", { errors });
+      }
+
+      const user = await User.findOne({ username });
+      if (!user) {
+        errors.general = "User not found";
+        throw new UserInputError("User not found", { errors });
+      }
+      const match = await bcryptjs.compare(password, user.password);
+      if (!match) {
+        errors.password = "Password is not correct";
+        throw new UserInputError("Password incorrect", { errors });
+      }
+
+      const token = tokenizer(user);
+
+      return {
+        ...user._doc,
+        id: user._id,
+        token,
+      };
+    },
     async register(
       parent,
-      { registerInfo: { username, email, password, confirmPassword } }
+      { registerInfo: { username, password, confirmPassword, email } }
     ) {
       const { valid, errors } = validateRegistration(
         username,
@@ -49,45 +75,16 @@ module.exports = {
       // TODO: make sure user doesnt already exist
       // DONE: hash password and create auth token
       password = await bcryptjs.hash(password, saltRounds);
-      const newUser = new User({ email, username, password });
-
+      const newUser = new User({
+        email,
+        username,
+        password,
+      });
       const result = await newUser.save();
-
-      const token = tokenizer(user);
+      const token = tokenizer(newUser);
       return {
         ...result._doc,
         id: result._id,
-        token,
-      };
-    },
-  },
-};
-
-module.exports = {
-  Mutation: {
-    async login(parent, { loginInfo: { username, password } }) {
-      const { errors, valid } = validateLogin(username, password);
-
-      if (!valid) {
-        throw new UserInputError("Errors", {errors});
-      }
-
-      const user = await User.findOne({ username });
-      if (!user) {
-        errors.general = "User not found";
-        throw new UserInputError("User not found", { errors });
-      }
-      const match = await bcryptjs.compare(password, user.password);
-      if (!match) {
-        errors.password = "Password is not correct";
-        throw new UserInputError("Password incorrect", { errors });
-      }
-
-      const token = tokenizer(user);
-
-      return {
-        ...user._doc,
-        id: user._id,
         token,
       };
     },

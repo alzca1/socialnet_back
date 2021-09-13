@@ -9,7 +9,7 @@ module.exports = {
   Mutation: {
     async createComment(parent, { postID, body }, context) {
       const user = authChecker(context);
-      console.log(user);
+      
       if (body.trim() === "") {
         throw new UserInputError("The comment cannot be empty", {
           errors: {
@@ -40,7 +40,7 @@ module.exports = {
       const user = authChecker(context);
       try {
         const post = await Post.findById(postID);
-        console.log(post);
+        
         if (post) {
           const commentIndex = post.comments.findIndex((comment) => {
             return comment._id.toString() == commentID;

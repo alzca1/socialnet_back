@@ -23,4 +23,4 @@ const userSchema = new Schema(
   }
 );
 
-module.exports = model("USer", userSchema);
+module.exports = model("User", userSchema);
