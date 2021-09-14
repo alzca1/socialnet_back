@@ -48,11 +48,12 @@ module.exports = {
         token,
       };
     },
+
     async register(
       parent,
       { registerInfo: { username, password, confirmPassword, email } }
     ) {
-      const { valid, errors } = validateRegistration(
+      const { errors, valid } = validateRegistration(
         username,
         email,
         password,
@@ -60,26 +61,23 @@ module.exports = {
       );
 
       if (!valid) {
-        throw new UserInputError("Errors", errors);
+        throw new UserInputError("Errors", { errors });
       }
 
-      const user = await User.findOne({ username });
+      let user = await User.findOne({ username });
       if (user) {
-        throw new UserInputError("Username is registered already", {
-          errors: {
-            username:
-              "This username is already registered. Please use another one",
-          },
-        });
+        errors.username = "Username already taken. Please, use another one";
+        throw new UserInputError("Username taken", { errors });
       }
-      // TODO: make sure user doesnt already exist
-      // DONE: hash password and create auth token
+
       password = await bcryptjs.hash(password, saltRounds);
+
       const newUser = new User({
         email,
         username,
         password,
       });
+
       const result = await newUser.save();
       const token = tokenizer(newUser);
       return {
