@@ -33,9 +33,12 @@ module.exports = {
 
       try {
         if (body.trim() === "") {
-          throw new Error("Body cannot be empty");
+          errors.body = "Body cannot be empty; "
+          throw new UserInputError("Body cannot be empty", {
+            errors
+          });
         }
-        const newPost = new Post({ body, user: user.id });
+        const newPost = new Post({ body, username: user.username });
         const post = await newPost.save();
         return post;
       } catch (error) {

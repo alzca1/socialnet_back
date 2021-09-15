@@ -5,6 +5,7 @@ const typeDefs = gql`
     id: ID!
     body: String!
     user: ID!
+    username: String!
     createdAt: String!
     comments: [Comment]!
     likes: [Like]!
@@ -22,7 +23,7 @@ const typeDefs = gql`
   type Comment {
     id: ID!
     body: String!
-    user: ID!
+    # user: ID!
     username: String!
     likes: [Like]!
     createdAt: String!
