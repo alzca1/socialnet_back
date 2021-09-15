@@ -7,10 +7,11 @@ const commentSchema = new Schema(
       type: String,
       required: true,
     },
-    user: {
-      type: Schema.Types.ObjectId,
-      ref: "users",
-    },
+    // user: {
+    //   type: Schema.Types.ObjectId,
+    //   ref: "users"
+    // },
+    username: String,
     likes: [
       {
         type: Schema.Types.ObjectId,
